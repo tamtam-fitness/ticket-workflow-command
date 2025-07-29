@@ -119,83 +119,65 @@ graph TB
 ### ワークフロー
 
 ```mermaid
-graph TD
-    INPUT[チケット入力]
-
-    WF_INIT[🔄 Workflow Init<br/>チケット名前空間生成<br/>ディレクトリ構造作成]
-
-    UA[🔍 Universal Analyzer<br/>状態確認・2層知識統合<br/>次アクション判定]
-
-    KNOWLEDGE_INJECTION{🧠 知識統合<br/>General + Specified<br/>Knowledge Injection}
-
-    REQ_ANA[📊 Requirements Analyzer<br/>WHY/WHAT/WHO/CONSTRAINTS<br/>VOLUME充足度分析<br/>2層知識活用]
-
-    USER_CHECK1{👤 ユーザー確認1<br/>要件分析結果確認<br/>A詳細化実行<br/>Bこのまま進む<br/>C手動修正}
-
-    REQ_ELAB[📝 Requirements Elaborator<br/>不足要件の詳細化<br/>プロジェクト固有知識活用<br/>ユーザー問い合わせ]
-
-    USER_QUERY{💬 知識不足確認<br/>プロジェクト固有情報<br/>が不足している場合<br/>ユーザーに問い合わせ}
-
-    USER_CHECK2{👤 ユーザー確認2<br/>詳細化結果確認<br/>Aタスク分解進む<br/>B再詳細化<br/>C手動編集}
-
-    TASK_DECOMP[🔧 Task Decomposer<br/>確定タスク＋TODO分解<br/>過去事例参照<br/>依存関係管理]
-
-    USER_CHECK3{👤 ユーザー確認3<br/>分解結果確認<br/>A実行開始<br/>B再分解<br/>C手動調整}
-
-    TASK_EXEC[⚡ Task Executor<br/>プロジェクト固有ナレッジ確認<br/>実行・成果物生成<br/>ナレッジ蓄積]
-
-    USER_CHECK4{👤 ユーザー確認4<br/>実行結果確認<br/>A次タスク<br/>B完了<br/>C修正}
-
-    USER_MANUAL[✏️ ユーザー手動編集<br/>直接ファイル編集]
-
-    subgraph NAMESPACE_STRUCTURE [名前空間構造]
-        STATE["📁 .ticket-workflow/namespace/<br/>current-state.json<br/>requirements.md<br/>tasks.md"]
-        KNOWLEDGE_STORE["💾 knowledge/<br/>investigation-*.md<br/>design-*.md<br/>strategy-*.md<br/>user-input-*.md"]
-    end
-
+graph LR
+    INPUT[チケット入力] --> WF_INIT[🔄 Workflow Init<br/>チケット名前空間生成<br/>ディレクトリ構造作成]
+    
+    WF_INIT --> UA[🔍 Universal Analyzer<br/>状態確認・2層知識統合<br/>次アクション判定]
+    
+    UA --> KNOWLEDGE_INJECTION{🧠 知識統合<br/>General + Specified<br/>Knowledge Injection}
+    
+    KNOWLEDGE_INJECTION --> REQ_ANA[📊 Requirements Analyzer<br/>WHY/WHAT/WHO/CONSTRAINTS<br/>VOLUME充足度分析<br/>2層知識活用]
+    
+    REQ_ANA --> USER_CHECK1{👤 ユーザー確認1<br/>要件分析結果確認<br/>A詳細化実行<br/>Bこのまま進む<br/>C手動修正}
+    
+    USER_CHECK1 -->|A詳細化実行| REQ_ELAB[📝 Requirements Elaborator<br/>不足要件の詳細化<br/>プロジェクト固有知識活用<br/>ユーザー問い合わせ]
+    
+    REQ_ELAB --> USER_QUERY{💬 知識不足確認<br/>プロジェクト固有情報<br/>が不足している場合<br/>ユーザーに問い合わせ}
+    
+    USER_QUERY --> USER_CHECK2{👤 ユーザー確認2<br/>詳細化結果確認<br/>Aタスク分解進む<br/>B再詳細化<br/>C手動編集}
+    
+    USER_CHECK1 -->|Bこのまま進む| TASK_DECOMP[🔧 Task Decomposer<br/>確定タスク＋TODO分解<br/>過去事例参照<br/>依存関係管理]
+    USER_CHECK2 -->|Aタスク分解進む| TASK_DECOMP
+    
+    TASK_DECOMP --> USER_CHECK3{👤 ユーザー確認3<br/>分解結果確認<br/>A実行開始<br/>B再分解<br/>C手動調整}
+    
+    USER_CHECK3 -->|A実行開始| TASK_EXEC[⚡ Task Executor<br/>プロジェクト固有ナレッジ確認<br/>実行・成果物生成<br/>ナレッジ蓄積]
+    
+    TASK_EXEC --> USER_CHECK4{👤 ユーザー確認4<br/>実行結果確認<br/>A次タスク<br/>B完了<br/>C修正}
+    
+    USER_CHECK4 -->|A次タスク| UA
+    USER_CHECK4 -->|B完了| END[完了]
+    
+    %% 手動編集とループバック
+    USER_CHECK1 -->|C手動修正| USER_MANUAL[✏️ ユーザー手動編集<br/>直接ファイル編集]
+    USER_CHECK2 -->|C手動編集| USER_MANUAL
+    USER_CHECK3 -->|C手動調整| USER_MANUAL
+    USER_CHECK4 -->|C修正| USER_MANUAL
+    USER_MANUAL --> UA
+    
+    %% 再実行ループ
+    USER_CHECK2 -->|B再詳細化| REQ_ELAB
+    USER_CHECK3 -->|B再分解| TASK_DECOMP
+    
+    %% 知識構造
     subgraph KNOWLEDGE_FLOW [知識フロー]
+        direction TB
         GEN_KNOW[🧠 General Knowledge<br/>汎用ドメイン知識]
         SPEC_KNOW[🎯 Specified Knowledge<br/>プロジェクト固有知識]
     end
-
-    INPUT --> WF_INIT
-    WF_INIT --> STATE
-    WF_INIT --> UA
-
-    UA --> KNOWLEDGE_INJECTION
-    KNOWLEDGE_INJECTION --> GEN_KNOW
-    KNOWLEDGE_INJECTION --> SPEC_KNOW
-    KNOWLEDGE_INJECTION --> REQ_ANA
-
-    REQ_ANA --> USER_CHECK1
-
-    USER_CHECK1 -->|A詳細化実行| REQ_ELAB
-    USER_CHECK1 -->|Bこのまま進む| TASK_DECOMP
-    USER_CHECK1 -->|C手動修正| USER_MANUAL
-
-    REQ_ELAB --> USER_QUERY
-    USER_QUERY -->|知識追加| KNOWLEDGE_STORE
-    USER_QUERY --> USER_CHECK2
-
-    USER_CHECK2 -->|Aタスク分解進む| TASK_DECOMP
-    USER_CHECK2 -->|B再詳細化| REQ_ELAB
-    USER_CHECK2 -->|C手動編集| USER_MANUAL
-
-    TASK_DECOMP --> USER_CHECK3
-
-    USER_CHECK3 -->|A実行開始| TASK_EXEC
-    USER_CHECK3 -->|B再分解| TASK_DECOMP
-    USER_CHECK3 -->|C手動調整| USER_MANUAL
-
-    TASK_EXEC --> KNOWLEDGE_STORE
-    TASK_EXEC --> USER_CHECK4
-
-    USER_CHECK4 -->|A次タスク| UA
-    USER_CHECK4 -->|B完了| INPUT
-    USER_CHECK4 -->|C修正| USER_MANUAL
-
-    USER_MANUAL --> UA
-
+    
+    subgraph NAMESPACE_STRUCTURE [名前空間構造]
+        direction TB
+        STATE["📁 .ticket-workflow/namespace/<br/>current-state.json<br/>requirements.md<br/>tasks.md"]
+        KNOWLEDGE_STORE["💾 knowledge/<br/>investigation-*.md<br/>design-*.md<br/>strategy-*.md<br/>user-input-*.md"]
+    end
+    
+    %% 知識フローの接続
+    KNOWLEDGE_INJECTION -.->|取得| GEN_KNOW
+    KNOWLEDGE_INJECTION -.->|取得| SPEC_KNOW
+    WF_INIT -.->|生成| STATE
+    USER_QUERY -.->|知識追加| KNOWLEDGE_STORE
+    TASK_EXEC -.->|成果物保存| KNOWLEDGE_STORE
     SPEC_KNOW -.->|参照| KNOWLEDGE_STORE
     KNOWLEDGE_STORE -.->|蓄積| SPEC_KNOW
 ```
