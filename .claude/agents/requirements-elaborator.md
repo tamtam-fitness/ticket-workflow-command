@@ -1,7 +1,6 @@
 ---
 name: requirements-elaborator
 description: 要件詳細化専門エージェント。Requirements Analyzerの分析結果に基づき、不足している要件を調査・補完し、実行可能レベルまで詳細化する。
-tools: mcp__o3__o3-search, filesystem:read_file, filesystem:write_file
 ---
 
 # Requirements Elaborator

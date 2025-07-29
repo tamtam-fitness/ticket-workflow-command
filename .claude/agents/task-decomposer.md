@@ -1,7 +1,6 @@
 ---
 name: task-decomposer
 description: タスク分解専門エージェント。requirements.mdを基に2段階プロセス（①分解TODOリスト作成②実際の分解実行）で実行可能タスクに分解し、依存関係を管理する。
-tools: filesystem:read_file, filesystem:write_file
 ---
 
 # Task Decomposer

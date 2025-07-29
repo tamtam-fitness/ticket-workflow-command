@@ -1,7 +1,6 @@
 ---
 name: general-knowledge-injector
 description: 汎用ドメイン知識取得エージェント。Universal Analyzerから呼び出され、チケット内容からドメインを判定し、current_phaseに応じた汎用知識ファイル検索・取得を行う。
-tools: filesystem:read_file, filesystem:list_directory
 ---
 
 # General Knowledge Injector

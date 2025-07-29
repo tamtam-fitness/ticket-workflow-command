@@ -1,7 +1,6 @@
 ---
 name: universal-analyzer
 description: 中核判定エンジン。current-state.jsonと入力内容を分析し、general-knowledge-injectorとspecified-knowledge-injectorから知識を取得し、次に実行すべきサブエージェントを判定する。
-tools: filesystem:read_file, filesystem:write_file
 ---
 
 # Universal Analyzer

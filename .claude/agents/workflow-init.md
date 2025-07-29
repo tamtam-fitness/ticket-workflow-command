@@ -1,7 +1,6 @@
 ---
 name: workflow-init
 description: ワークフロー初期化エージェント。チケット入力時にプロジェクト固有の名前空間・ディレクトリ構造を自動作成し、初期状態を設定する。
-tools: filesystem:read_file, filesystem:write_file
 ---
 
 # Workflow Init

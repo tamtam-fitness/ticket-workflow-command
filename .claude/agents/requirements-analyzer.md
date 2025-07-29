@@ -1,7 +1,6 @@
 ---
 name: requirements-analyzer
 description: 要件分析専門エージェント。WHY/WHAT/WHO/CONSTRAINTS/VOLUMEの充足度を分析し、不足要素を特定する。要件の網羅性確認で必ず使用。
-tools: filesystem:read_file, web_search, notionApi:API-post-search
 ---
 
 # Requirements Analyzer

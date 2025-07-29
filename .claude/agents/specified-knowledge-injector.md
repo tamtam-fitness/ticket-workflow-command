@@ -1,7 +1,6 @@
 ---
 name: specified-knowledge-injector
 description: プロジェクト固有知識取得エージェント。チケット名前空間のknowledgeディレクトリから関連する固有知識・過去の成果物を検索・取得し、コンテキストに応じた知見を提供する。
-tools: filesystem:read_file, filesystem:list_directory
 ---
 
 # Specified Knowledge Injector

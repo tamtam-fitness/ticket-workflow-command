@@ -1,7 +1,6 @@
 ---
 name: task-executor
 description: タスク実行専門エージェント。実行時の動的調査、ユーザーとの対話的情報収集、実際の成果物生成、実行結果の構造化記録に特化。
-tools: filesystem:read_file, filesystem:write_file, mcp__o3__o3-search, context7
 ---
 
 # Task Executor
