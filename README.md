@@ -28,47 +28,61 @@ graph TB
     end
 
     subgraph "オーケストレーション層"
-        UA[🔍 Universal Analyzer<br/>オーケストラエージェント<br/>中核判定・分岐制御]
+        UA[🔍 Universal Analyzer<br/>中核判定・2層知識統合<br/>分岐制御]
+        WF_INIT[🔄 Workflow Init<br/>名前空間作成<br/>ディレクトリ初期化]
     end
 
     subgraph "サブエージェント層"
         REQ_ANA[📊 Requirements<br/>Analyzer]
-        REQ_ELAB[📝 Requirements<br/>Elaborator]
-        TASK_DECOMP[🔧 Task<br/>Decomposer]
-        TASK_EXEC[⚡ Task<br/>Executor]
+        REQ_ELAB[📝 Requirements<br/>Elaborator<br/>+ユーザー問い合わせ]
+        TASK_DECOMP[🔧 Task<br/>Decomposer<br/>+過去事例参照]
+        TASK_EXEC[⚡ Task<br/>Executor<br/>+ナレッジ蓄積]
+    end
+
+    subgraph "知識注入層"
+        GEN_KNOW[🧠 General Knowledge<br/>Injector<br/>汎用ドメイン知識]
+        SPEC_KNOW[🎯 Specified Knowledge<br/>Injector<br/>プロジェクト固有知識]
     end
 
     subgraph "ナレッジ層"
-        DOMAIN[🧠 ドメイン知識<br/>Web Development<br/>Marketing]
-        CRITERIA[🎯 判断基準<br/>Analysis Criteria<br/>Execution Guidelines]
+        subgraph "汎用知識"
+            DOMAIN[🌐 ドメイン知識<br/>Web Development<br/>Marketing]
+            CRITERIA[📋 判断基準<br/>Analysis Criteria<br/>Execution Guidelines]
+        end
+        subgraph "プロジェクト固有知識"
+            PROJ_KNOW["📁 Project Knowledge<br/>.ticket-workflow/namespace/knowledge/<br/>調査書・設計書・戦略書"]
+            USER_KNOW["👤 User Constraints<br/>user-input-*.md<br/>プロジェクト制約・要求"]
+        end
     end
 
     subgraph "外部ツール層"
-        WEB_SEARCH[🔍 Web検索]
+        WEB_SEARCH[🔍 Web検索<br/>O3]
         FILE_SYSTEM[📁 ファイルシステム]
-        NOTION[📝 Notion API]
+        CONTEXT7[🧠 Context7<br/>コードベース分析]
         TOOLS[🛠️ その他ツール]
     end
 
-    CLI --> UA
+    CLI --> WF_INIT
+    WF_INIT --> UA
     UA --> REQ_ANA
     UA --> REQ_ELAB
     UA --> TASK_DECOMP
     UA --> TASK_EXEC
 
-    REQ_ANA -.->|知識参照| DOMAIN
-    REQ_ANA -.->|判断基準参照| CRITERIA
-    REQ_ELAB -.->|知識参照| DOMAIN
-    REQ_ELAB -.->|判断基準参照| CRITERIA
-    TASK_DECOMP -.->|知識参照| DOMAIN
-    TASK_DECOMP -.->|判断基準参照| CRITERIA
-    TASK_EXEC -.->|知識参照| DOMAIN
-    TASK_EXEC -.->|判断基準参照| CRITERIA
+    UA -.->|知識統合呼び出し| GEN_KNOW
+    UA -.->|知識統合呼び出し| SPEC_KNOW
+
+    GEN_KNOW -.->|汎用知識取得| DOMAIN
+    GEN_KNOW -.->|汎用知識取得| CRITERIA
+    SPEC_KNOW -.->|固有知識取得| PROJ_KNOW
+    SPEC_KNOW -.->|固有知識取得| USER_KNOW
 
     REQ_ELAB --> WEB_SEARCH
+    REQ_ELAB -.->|ユーザー回答保存| PROJ_KNOW
     TASK_EXEC --> FILE_SYSTEM
-    TASK_EXEC --> NOTION
+    TASK_EXEC --> CONTEXT7
     TASK_EXEC --> TOOLS
+    TASK_EXEC -.->|成果物保存| PROJ_KNOW
 
     REQ_ANA --> UA
     REQ_ELAB --> UA
@@ -79,111 +93,99 @@ graph TB
 
 ### エージェント構成
 
-- **🔍 Universal Analyzer**: 中核判定エンジン。状態確認・次アクション判定・タスク粒度判定（0.5人日基準）
-- **📊 Requirements Analyzer**: WHY/WHAT/WHO/CONSTRAINTS/VOLUMEの充足度分析
-- **📝 Requirements Elaborator**: 不足要件の調査・補完・詳細化
-- **🔧 Task Decomposer**: 確定タスク＋TODO分解・依存関係管理
-- **⚡ Task Executor**: 前提確認・実行準備・実行内容・影響範囲確認
-- **🧠 Domain Injector**: ドメイン知識注入処理
+- **🔍 Universal Analyzer**: 中核判定エンジン。状態確認・次アクション判定・2層知識統合
+- **🔄 Workflow Init**: ワークフロー初期化。チケット名前空間・ディレクトリ構造作成
+- **📊 Requirements Analyzer**: WHY/WHAT/WHO/CONSTRAINTS/VOLUMEの充足度分析（2層知識活用）
+- **📝 Requirements Elaborator**: 不足要件の調査・補完・詳細化・ユーザー問い合わせ（プロジェクト固有知識活用）
+- **🔧 Task Decomposer**: 確定タスク＋TODO分解・依存関係管理（過去事例参照）
+- **⚡ Task Executor**: 前提確認・実行準備・実行内容・影響範囲確認（ナレッジ蓄積）
+- **🧠 General Knowledge Injector**: 汎用ドメイン知識注入処理
+- **🎯 Specified Knowledge Injector**: プロジェクト固有知識取得・活用
 
 ## 🔄 Workflow
 
-### 完全なワークフローフロー
+### ワークフローフロー
 
 ```mermaid
 graph TD
     INPUT[チケット入力]
 
-    UA[🔍 Universal Analyzer<br/>状態確認・次アクション判定<br/>タスク粒度判定0.5人日基準]
+    WF_INIT[🔄 Workflow Init<br/>チケット名前空間生成<br/>ディレクトリ構造作成]
 
-    REQ_ANA[📊 Requirements Analyzer<br/>WHY/WHAT/WHO/CONSTRAINTS<br/>VOLUME工数見積もり充足度分析]
+    UA[🔍 Universal Analyzer<br/>状態確認・2層知識統合<br/>次アクション判定]
+
+    KNOWLEDGE_INJECTION{🧠 知識統合<br/>General + Specified<br/>Knowledge Injection}
+
+    REQ_ANA[📊 Requirements Analyzer<br/>WHY/WHAT/WHO/CONSTRAINTS<br/>VOLUME充足度分析<br/>2層知識活用]
 
     USER_CHECK1{👤 ユーザー確認1<br/>要件分析結果確認<br/>A詳細化実行<br/>Bこのまま進む<br/>C手動修正}
 
-    VOLUME_CHECK{👤 工数見積もり確認<br/>工数情報不足の場合<br/>A工数を指定する<br/>B工数不明のまま進む<br/>C手動で要件追記}
+    REQ_ELAB[📝 Requirements Elaborator<br/>不足要件の詳細化<br/>プロジェクト固有知識活用<br/>ユーザー問い合わせ]
 
-    REQ_ELAB[📝 Requirements Elaborator<br/>指定箇所の詳細化<br/>工数情報含むrequirements.md生成]
+    USER_QUERY{💬 知識不足確認<br/>プロジェクト固有情報<br/>が不足している場合<br/>ユーザーに問い合わせ}
 
-    USER_CHECK2{👤 ユーザー確認2<br/>生成要件確認<br/>Aタスク分解進む<br/>B再詳細化<br/>C手動編集}
+    USER_CHECK2{👤 ユーザー確認2<br/>詳細化結果確認<br/>Aタスク分解進む<br/>B再詳細化<br/>C手動編集}
 
-    GRANULARITY_CHECK{🔍 タスク粒度判定<br/>0.5人日以下？<br/>分解不要 vs 分解必要}
-
-    TASK_DECOMP[🔧 Task Decomposer<br/>確定タスク＋TODO分解<br/>依存関係管理<br/>tasks.md生成]
+    TASK_DECOMP[🔧 Task Decomposer<br/>確定タスク＋TODO分解<br/>過去事例参照<br/>依存関係管理]
 
     USER_CHECK3{👤 ユーザー確認3<br/>分解結果確認<br/>A実行開始<br/>B再分解<br/>C手動調整}
 
-    TASK_EXEC[⚡ Task Executor<br/>前提確認 + 実行準備<br/>実行内容・影響範囲確認]
+    TASK_EXEC[⚡ Task Executor<br/>プロジェクト固有ナレッジ確認<br/>実行・成果物生成<br/>ナレッジ蓄積]
 
-    DEPENDENCY_CHECK{🔗 依存関係確認<br/>TODOタスクの<br/>詳細化タイミング？}
-
-    TODO_ELABORATE[📋 TODO詳細化<br/>依存タスク完了後<br/>新たな分解実行]
+    USER_CHECK4{👤 ユーザー確認4<br/>実行結果確認<br/>A次タスク<br/>B完了<br/>C修正}
 
     USER_MANUAL[✏️ ユーザー手動編集<br/>直接ファイル編集]
 
-    subgraph STATE_MGMT [状態管理]
-        STATE[📁 current-state.json<br/>処理段階の記録<br/>ユーザー選択履歴<br/>承認状態<br/>依存関係追跡]
+    subgraph NAMESPACE_STRUCTURE [名前空間構造]
+        STATE["📁 .ticket-workflow/namespace/<br/>current-state.json<br/>requirements.md<br/>tasks.md"]
+        KNOWLEDGE_STORE["💾 knowledge/<br/>investigation-*.md<br/>design-*.md<br/>strategy-*.md<br/>user-input-*.md"]
     end
 
-    subgraph OUTPUT_FILES [生成ファイル]
-        REQ_FILE[📄 requirements.md<br/>VOLUME工数情報含む]
-        TASK_FILE[📋 tasks.md<br/>確定タスク＋TODOリスト<br/>依存関係記録]
-        CONFIRMED_TASKS[📝 確定タスクファイル<br/>task-001-name.md]
-        TODO_TASKS[📝 TODOタスクファイル<br/>依存完了後に生成]
-        EXECUTION_RESULTS[🎯 実行成果物]
+    subgraph KNOWLEDGE_FLOW [知識フロー]
+        GEN_KNOW[🧠 General Knowledge<br/>汎用ドメイン知識]
+        SPEC_KNOW[🎯 Specified Knowledge<br/>プロジェクト固有知識]
     end
 
-    INPUT --> UA
-    UA --> REQ_ANA
+    INPUT --> WF_INIT
+    WF_INIT --> STATE
+    WF_INIT --> UA
+
+    UA --> KNOWLEDGE_INJECTION
+    KNOWLEDGE_INJECTION --> GEN_KNOW
+    KNOWLEDGE_INJECTION --> SPEC_KNOW
+    KNOWLEDGE_INJECTION --> REQ_ANA
+
     REQ_ANA --> USER_CHECK1
 
-    USER_CHECK1 -->|A詳細化実行| VOLUME_CHECK
-    USER_CHECK1 -->|Bこのまま進む| GRANULARITY_CHECK
+    USER_CHECK1 -->|A詳細化実行| REQ_ELAB
+    USER_CHECK1 -->|Bこのまま進む| TASK_DECOMP
     USER_CHECK1 -->|C手動修正| USER_MANUAL
 
-    VOLUME_CHECK -->|A工数指定| REQ_ELAB
-    VOLUME_CHECK -->|B工数不明で進む| REQ_ELAB
-    VOLUME_CHECK -->|C手動要件追記| USER_MANUAL
+    REQ_ELAB --> USER_QUERY
+    USER_QUERY -->|知識追加| KNOWLEDGE_STORE
+    USER_QUERY --> USER_CHECK2
 
-    REQ_ELAB --> REQ_FILE
-    REQ_ELAB --> USER_CHECK2
-
-    USER_CHECK2 -->|Aタスク分解進む| GRANULARITY_CHECK
+    USER_CHECK2 -->|Aタスク分解進む| TASK_DECOMP
     USER_CHECK2 -->|B再詳細化| REQ_ELAB
     USER_CHECK2 -->|C手動編集| USER_MANUAL
 
-    GRANULARITY_CHECK -->|0.5人日以下<br/>分解不要| TASK_EXEC
-    GRANULARITY_CHECK -->|0.5人日超<br/>分解必要| TASK_DECOMP
-
-    TASK_DECOMP --> TASK_FILE
-    TASK_DECOMP --> CONFIRMED_TASKS
     TASK_DECOMP --> USER_CHECK3
 
     USER_CHECK3 -->|A実行開始| TASK_EXEC
     USER_CHECK3 -->|B再分解| TASK_DECOMP
     USER_CHECK3 -->|C手動調整| USER_MANUAL
 
-    TASK_EXEC --> USER_CHECK4{👤 ユーザー確認4<br/>タスク実行前確認<br/>A実行承認<br/>B実行保留<br/>C条件変更}
+    TASK_EXEC --> KNOWLEDGE_STORE
+    TASK_EXEC --> USER_CHECK4
 
-    USER_CHECK4 -->|A実行承認| EXECUTION_RESULTS
-    USER_CHECK4 -->|B実行保留| UA
-    USER_CHECK4 -->|C条件変更| USER_MANUAL
-
-    EXECUTION_RESULTS --> DEPENDENCY_CHECK
-
-    DEPENDENCY_CHECK -->|TODOタスク詳細化必要| TODO_ELABORATE
-    DEPENDENCY_CHECK -->|全タスク完了| UA
-
-    TODO_ELABORATE --> TODO_TASKS
-    TODO_ELABORATE --> UA
+    USER_CHECK4 -->|A次タスク| UA
+    USER_CHECK4 -->|B完了| INPUT
+    USER_CHECK4 -->|C修正| USER_MANUAL
 
     USER_MANUAL --> UA
 
-    USER_CHECK1 -.-> STATE
-    VOLUME_CHECK -.-> STATE
-    USER_CHECK2 -.-> STATE
-    USER_CHECK3 -.-> STATE
-    USER_CHECK4 -.-> STATE
-    DEPENDENCY_CHECK -.-> STATE
+    SPEC_KNOW -.->|参照| KNOWLEDGE_STORE
+    KNOWLEDGE_STORE -.->|蓄積| SPEC_KNOW
 ```
 
 ### ワークフローの特徴
@@ -222,12 +224,14 @@ graph TD
 ├── commands/
 │   └── ticket-workflow.md              # 統合制御・状態遷移管理
 ├── agents/
-│   ├── universal-analyzer.md           # 判定処理ロジック
+│   ├── universal-analyzer.md           # 中核判定・2層知識統合
+│   ├── workflow-init.md                # ワークフロー初期化
 │   ├── requirements-analyzer.md        # 充足度分析処理
-│   ├── requirements-elaborator.md      # 詳細化処理
+│   ├── requirements-elaborator.md      # 詳細化・ユーザー問い合わせ処理
 │   ├── task-decomposer.md             # 分解処理ロジック
-│   ├── task-executor.md               # 実行処理ロジック
-│   └── domain-injector.md             # ドメイン知識注入
+│   ├── task-executor.md               # 実行・ナレッジ蓄積処理
+│   ├── general-knowledge-injector.md   # 汎用ドメイン知識注入
+│   └── specified-knowledge-injector.md # プロジェクト固有知識取得
 └── docs/
     └── ticket-workflow/
         ├── core/...                    # 汎用的な判断軸・基準
@@ -242,13 +246,19 @@ graph TD
 # project
 {プロジェクトルート}/
 ├── CLAUDE.md                           # プロジェクト全体知識
-├── ticket-workflow/                    # 実行時生成
-│   ├── current-state.json              # 現在状態
-│   ├── requirements.md                 # 蓄積要件
-│   ├── tasks.md                        # タスク一覧
-│   └── tasks/                          # 個別タスク
-│       ├── task1.md
-│       └── task2.md
+├── .ticket-workflow/                   # 実行時生成（新構造）
+│   └── {ticket-namespace}/             # チケット別名前空間
+│       ├── current-state.json          # 現在状態
+│       ├── requirements.md             # 蓄積要件
+│       ├── tasks.md                    # タスク一覧
+│       ├── tasks/                      # 個別タスク
+│       │   ├── task1.md
+│       │   └── task2.md
+│       └── knowledge/                  # プロジェクト固有ナレッジ(下記は例)
+│           ├── investigation-*.md      # 調査書
+│           ├── design-*.md             # 設計書
+│           ├── strategy-*.md           # 戦略書
+│           └── user-input-*.md         # ユーザー定義制約
 └── {既存プロジェクト構造}
 ```
 
@@ -267,10 +277,17 @@ graph TD
 - 確定タスクとTODOタスクの分離
 - 並行実行可能性の最大化
 
+### プロジェクト固有ナレッジ活用
+- 過去の調査・設計・戦略成果物の自動活用
+- ユーザー定義制約・要求事項の参照
+- 知識不足時の動的ユーザー問い合わせ
+- 横断的知識（他チケットからの知見）の活用
+
 ### 実行管理
-- 実行時の動的調査
+- 実行時の動的調査（プロジェクト固有知識優先）
 - ユーザーとの対話的情報収集
 - 実行結果の構造化記録
+- 非コード成果物のナレッジ自動分類・蓄積
 - 次タスクへの継承情報管理
 
 ## ライセンス
