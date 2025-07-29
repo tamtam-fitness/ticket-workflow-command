@@ -70,7 +70,7 @@ graph TB
     end
 
     subgraph "外部ツール層"
-        WEB_SEARCH[🔍 Web検索<br/>O3]
+        WEB_SEARCH[🔍 Web検索<br/>WebSearch]
         FILE_SYSTEM[📁 ファイルシステム]
         CONTEXT7[🧠 Context7<br/>コードベース分析]
         TOOLS[🛠️ その他ツール]
