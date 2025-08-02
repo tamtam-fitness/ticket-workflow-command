@@ -1,0 +1,13 @@
+{
+  "ticket_content": "要件定義フェーズ特化エージェント開発\n\n**目的:**\nチケットワークフローコマンドの要件定義フェーズにおいて、要件の抜け漏れを防ぐ専門エージェントを開発する\n\n**受け入れ条件:**\n- 業務要件、機能要件、非機能要件の分類体系を定義\n- 外部ステークホルダー要件の洗い出し観点を整理\n- 要求分析の必要フェーズを明確化\n- レビュー観点チェックリストを作成",
+  "ticket_namespace": "requirements-agent-0801",
+  "current_phase": "analysis",
+  "created_at": "2025-08-01T12:00:00Z",
+  "user_confirmations": {
+    "analysis_confirmed": false,
+    "elaboration_confirmed": false,
+    "decomposition_confirmed": false
+  },
+  "domain": null,
+  "last_updated": "2025-08-01T12:00:00Z"
+}
